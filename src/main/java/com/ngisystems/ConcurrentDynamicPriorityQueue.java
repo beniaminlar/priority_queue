@@ -46,7 +46,11 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
      */
     public synchronized E poll() {
         if (size < 1) return null;
-        return removeFromIndex(1);
+        E result = queue[1];
+        queue[1] = queue[size];
+        queue[size--] = null;
+        bubbleDown(1);
+        return result;
     }
 
     /**
@@ -67,9 +71,8 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
      * This method should be used to update the priority of the element.
      *
      * <p>Order of operations and complexity:
-     * <li>search for the element in linear time,
-     * <li>remove the element and adjusts the heap in O(log n)
-     * <li>insert the new in O(log n)
+     * <li>search for the element in O(n)
+     * <li>replaces the element in O(log n)
      *
      * @param existingElement the original element from the queue
      * @param newElement the updated element to be added
@@ -78,8 +81,16 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
     public synchronized void update(E existingElement, E newElement)
             throws NoSuchElementException {
         int index = getIndex(existingElement);      //O(n)
-        removeFromIndex(index);                     //O(log n)
-        add(newElement);                            //O(log n)
+        replaceAtIndex(index, newElement);          //O(log n)
+    }
+
+    private void replaceAtIndex(int index, E newElement) {
+        queue[index] = newElement;
+        if(index == 1 || queue[index].compareTo(queue[parentIndex(index)]) < 0) {
+            bubbleDown(index);
+        } else {
+            bubbleUp(index);
+        }
     }
 
     /**
@@ -105,22 +116,6 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
             }
         }
         throw new NoSuchElementException();
-    }
-
-    private E removeFromIndex(int index) {
-        E removedElement = queue[index];
-        if(index == size) {
-            queue[size--] = null;
-            return removedElement;
-        }
-        queue[index] = queue[size];
-        queue[size--] = null;
-        if(index == 1 || queue[index].compareTo(queue[parentIndex(index)]) < 0) {
-            bubbleDown(index);
-        } else {
-            bubbleUp(index);
-        }
-        return removedElement;
     }
 
     private class Itr implements Iterator<E> {

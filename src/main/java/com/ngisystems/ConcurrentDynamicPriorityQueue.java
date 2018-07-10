@@ -31,7 +31,7 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
             queue = resize();
         }
         queue[++size] = e;
-        bubbleUp();
+        bubbleUp(this.size);
     }
 
     /**
@@ -76,7 +76,7 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
      *
      * @return an iterator over the elements in this queue
      */
-    public Iterator<E> iterator() {
+    public synchronized Iterator<E> iterator() {
         return new Itr(Arrays.copyOf(queue, size + 1));
     }
 
@@ -97,12 +97,26 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
         return largerQueue;
     }
 
+
+    //     if ( value in replacement node < its parent node )
+//    Filter the replacement node UP the binary tree
+//         else
+//    Filter the replacement node DOWN the binary tree
+
     private E removeFromIndex(int index) {
-        E result = queue[index];
+        E removedElement = queue[index];
+        if(index == size) {
+            queue[size--] = null;
+            return removedElement;
+        }
         queue[index] = queue[size];
         queue[size--] = null;
-        bubbleDown();
-        return result;
+        if(index == 1 || queue[index].compareTo(queue[parentIndex(index)]) < 0) {
+            bubbleDown(index);
+        } else {
+            bubbleUp(index);
+        }
+        return removedElement;
     }
 
     private class Itr implements Iterator<E> {
@@ -125,8 +139,7 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
     }
 
     //Binary Heap methods
-    private void bubbleDown() {
-        int index = 1;
+    private void bubbleDown(int index) {
         while (hasLeftChild(index)) {
             int largerChild = leftIndex(index);
 
@@ -145,8 +158,7 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
         }
     }
 
-    private void bubbleUp() {
-        int index = this.size;
+    private void bubbleUp(int index) {
 
         while (index > 1
                 && (queue[parentIndex(index)].compareTo(queue[index]) < 0)) {

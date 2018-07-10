@@ -24,11 +24,14 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
     /**
      * Inserts the specified element into this priority queue.
      *
+     * <p>This operation runs in O(log n) time because the queue uses a binary heap to store data.
+     * <p>If the underlying queue size needs to be extended this is performed in O(n) time
+     *
      * @param e the element to add
      */
     public synchronized void add(E e) {
         if (size >= queue.length - 1) {
-            queue = resize();
+            queue = Arrays.copyOf(queue, queue.length * 2);
         }
         queue[++size] = e;
         bubbleUp(this.size);
@@ -36,6 +39,9 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
 
     /**
      * Retrieves and removes the head of this queue, or returns null if this queue is empty.
+     *
+     * <p>This operation runs in O(log n) because it needs to restore the heap property after the top element is removed
+     *
      * @return the head of this queue, or null if this queue is empty
      */
     public synchronized E poll() {
@@ -45,6 +51,10 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
 
     /**
      * Retrieves the head of this queue, or returns null if this queue is empty.
+     *
+     * <p>This operation runs in O(1) because the top priority element is the first element
+     * in the underlying data structure
+     *
      * @return the head of this queue, or null if this queue is empty
      */
     public synchronized E peek() {
@@ -55,14 +65,21 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
     /**
      * Updates an existing element in the queue.
      * This method should be used to update the priority of the element.
+     *
+     * <p>Order of operations and complexity:
+     * <li>search for the element in linear time,
+     * <li>remove the element and adjusts the heap in O(log n)
+     * <li>insert the new in O(log n)
+     *
      * @param existingElement the original element from the queue
      * @param newElement the updated element to be added
      * @throws NoSuchElementException if the {@code existingElement} is not found in the queue
      */
     public synchronized void update(E existingElement, E newElement)
             throws NoSuchElementException {
-        remove(existingElement);
-        add(newElement);
+        int index = getIndex(existingElement);      //O(n)
+        removeFromIndex(index);                     //O(log n)
+        add(newElement);                            //O(log n)
     }
 
     /**
@@ -74,34 +91,21 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
      * ConcurrentModificationException}, and guarantees to traverse
      * elements as they existed upon construction of the iterator.
      *
+     * <p>The iterator uses a copy of the current heap and this is constructed in O(n)
      * @return an iterator over the elements in this queue
      */
     public synchronized Iterator<E> iterator() {
         return new Itr(Arrays.copyOf(queue, size + 1));
     }
 
-    private E remove(E elementToRemove) throws NoSuchElementException {
+    private int getIndex(E elementToRemove) throws NoSuchElementException {
         for (int i = 1; i <= size; i++) { //linear time O(n)
             if (queue[i].equals(elementToRemove)) {
-                return removeFromIndex(i);
+                return i;
             }
         }
         throw new NoSuchElementException();
     }
-
-    private E[] resize() {
-        E[] largerQueue = (E[]) new Comparable[queue.length * 2];
-        for (int i = 1; i <= size; i++) {
-            largerQueue[i] = queue[i];
-        }
-        return largerQueue;
-    }
-
-
-    //     if ( value in replacement node < its parent node )
-//    Filter the replacement node UP the binary tree
-//         else
-//    Filter the replacement node DOWN the binary tree
 
     private E removeFromIndex(int index) {
         E removedElement = queue[index];

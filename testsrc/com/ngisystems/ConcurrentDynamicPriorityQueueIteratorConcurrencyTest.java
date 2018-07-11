@@ -71,7 +71,7 @@ public class ConcurrentDynamicPriorityQueueIteratorConcurrencyTest {
     /**
      * In this test multiple threads will try to iterate over an existing queue and replace all even elements with
      * uneven elements.
-     * At the end the queue should contain only uneven elements.
+     * At the end the queue should be consistent.
      */
     void iteratorShouldAllowConcurrentModificationAndKeepConsistency() {
         List<Integer> retrievedElements = new ArrayList<>();

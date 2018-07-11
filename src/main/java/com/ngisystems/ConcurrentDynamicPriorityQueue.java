@@ -24,8 +24,8 @@ public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
     /**
      * Inserts the specified element into this priority queue.
      *
-     * <p>This operation runs in O(log n) time because the queue uses a binary heap to store data.
-     * <p>If the underlying queue size needs to be extended this is performed in O(n) time
+     * <p>This operation runs in amortized O(log n) time because the queue uses a binary heap to store data but still
+     * needs to increase it's size once it is full
      *
      * @param e the element to add
      */

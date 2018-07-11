@@ -7,17 +7,17 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ConcurrentDynamicPriorityQueueTest {
+class HeapPriorityQueueTest {
 
     @Test
     void pollShouldReturnNullIfQueueEmpty() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         assertNull(q.poll(), "Poll should return null if the queue is empty.");
     }
 
     @Test
     void pollShouldRemoveRetrievedElementFromTheQueue() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         q.add(1);
         q.poll();
         assertNull(q.poll(), "Poll should remove the retrieved element from the queue.");
@@ -25,13 +25,13 @@ class ConcurrentDynamicPriorityQueueTest {
 
     @Test
     void peekShouldReturnNullIfQueueEmpty() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         assertNull(q.peek(), "Peek should return null if the queue is empty.");
     }
 
     @Test
     void peekShouldNotRemoveRetrievedElement() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         q.add(1);
         q.peek();
         assertNotNull(q.peek(), "Peek should not remove the retrieved element from the queue.");
@@ -39,7 +39,7 @@ class ConcurrentDynamicPriorityQueueTest {
 
     @Test
     void updateShouldCorrectlyUpdateHighestPriorityElement() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         q.add(7);
         q.add(2);
         q.update(7, 5);
@@ -48,7 +48,7 @@ class ConcurrentDynamicPriorityQueueTest {
 
     @Test
     void updateShouldCorrectlyUpdateLowestPriorityElement() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         q.add(7);
         q.add(2);
         q.update(2, 9);
@@ -57,7 +57,7 @@ class ConcurrentDynamicPriorityQueueTest {
 
     @Test
     void updateShouldThrowExceptionWhenElementNotFound() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         q.add(7);
         q.add(2);
 
@@ -69,7 +69,7 @@ class ConcurrentDynamicPriorityQueueTest {
 
     @Test
     void updateShouldStopWhenElementNotFound() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         q.add(7);
         q.add(2);
 
@@ -84,7 +84,7 @@ class ConcurrentDynamicPriorityQueueTest {
 
     @Test
     void updateShouldThrowExceptionWhenQueueIsEmpty() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
 
         Executable updateOperation = () -> q.update(1, 3);
 
@@ -94,7 +94,7 @@ class ConcurrentDynamicPriorityQueueTest {
 
     @Test
     void updateShouldWorkIfNewElementHasSamePriority() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
         q.add(7);
         q.add(2);
 
@@ -106,7 +106,7 @@ class ConcurrentDynamicPriorityQueueTest {
 
     @Test
     void queueShouldAlwaysReturnHighestPriorityElement() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
 
         List<Integer> values = new ArrayList<>();
         new Random()

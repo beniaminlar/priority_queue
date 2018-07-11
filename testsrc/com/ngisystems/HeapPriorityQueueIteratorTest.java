@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ConcurrentDynamicPriorityQueueIteratorTest {
+class HeapPriorityQueueIteratorTest {
 
     @Test
     void iteratorShouldIterateAllElements() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
 
         int insertedValues = 10;
         new Random()
@@ -33,7 +33,7 @@ class ConcurrentDynamicPriorityQueueIteratorTest {
 
     @Test
     void nextShouldThrowExceptionWhenHasNextFalse() {
-        ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+        HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
 
         Iterator<Integer> iterator = q.iterator();
         assertFalse(iterator.hasNext());

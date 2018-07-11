@@ -3,7 +3,7 @@ package com.ngisystems;
 public class Main {
 
     public static void main(String[] args) {
-	    ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+	    HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
 
 	    q.add(1);
 	    q.add(4);

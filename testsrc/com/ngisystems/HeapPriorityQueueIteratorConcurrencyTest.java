@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ConcurrentDynamicPriorityQueueIteratorConcurrencyTest {
+public class HeapPriorityQueueIteratorConcurrencyTest {
 
-    ConcurrentDynamicPriorityQueue<Integer> q = new ConcurrentDynamicPriorityQueue<>();
+    HeapPriorityQueue<Integer> q = new HeapPriorityQueue<>();
 
     @BeforeEach
     void makeConcurrentModifications() {

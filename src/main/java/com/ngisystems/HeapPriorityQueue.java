@@ -10,13 +10,13 @@ import java.util.NoSuchElementException;
  *
  * @param <E> the type of elements held in the queue.(Must implement {@code Comparable<E>}
  */
-public class ConcurrentDynamicPriorityQueue<E extends Comparable<E>> {
+public class HeapPriorityQueue<E extends Comparable<E>> {
 
     private static final int INITIAL_CAPACITY = 10;
     private E[] queue;
     private int size;
 
-    public ConcurrentDynamicPriorityQueue() {
+    public HeapPriorityQueue() {
         queue = (E[]) new Comparable[INITIAL_CAPACITY];
         size = 0;
     }

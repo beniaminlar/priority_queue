@@ -1,6 +1,7 @@
 package com.ngisystems;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
@@ -12,41 +13,42 @@ import java.util.NoSuchElementException;
  *
  *  <p>Operations on this class make no guarantees about the ordering of elements with equal priority.
  */
-public class BucketsPriorityQueue {
+public class BucketsPriorityQueue<E extends Prioritizable> {
 
     private static final int BUCKET_INITIAL_CAPACITY = 5;
 
-    private static class Bucket {
-        Prioritizable[] elements;
+    private static class Bucket<E> {
+        E[] elements;
         int size;
 
         public Bucket() {
-            elements = new Prioritizable[BUCKET_INITIAL_CAPACITY];
+            elements = (E[]) new Prioritizable[BUCKET_INITIAL_CAPACITY];
         }
 
-        void add(Prioritizable element) {
+        void add(E element) {
             if (size >= elements.length - 1) {
                 elements = Arrays.copyOf(elements, elements.length * 2);
             }
             elements[size++] = element;
         }
 
-        Prioritizable take() {
+        E take() {
             if(size == 0) return null;
-            Prioritizable e = elements[size - 1];
+            E e = elements[size - 1];
             elements[--size] = null;
             return e;
         }
 
-        Prioritizable peek() {
+        E peek() {
             if(size == 0) return null;
             return elements[size - 1];
         }
     }
 
-    private Bucket[] buckets;
+    private Bucket<E>[] buckets;
     private final int maxPriority;
     private int top;
+    private int count;
 
     /**
      * Constructs a priority queue that will hold {@code Prioritizable} elements with the maximum specified priority.
@@ -72,13 +74,14 @@ public class BucketsPriorityQueue {
      * @param element the element to add to the queue
      * @throws IllegalStateException if the priority of the element is greater than the maximum queue priority
      */
-    public synchronized void add(Prioritizable element) throws IllegalStateException {
+    public synchronized void add(E element) throws IllegalStateException {
         if(element.getPriority() > maxPriority || element.getPriority() < 1) {
             throw new IllegalStateException("Priority must be between 1 and " + maxPriority);
         }
 
         int index = element.getPriority() - 1;
         buckets[index].add(element);
+        count++;
         top = top < index ? index : top;
     }
 
@@ -90,9 +93,9 @@ public class BucketsPriorityQueue {
      *
      * @return the top priority element or null if the queue is empty
      */
-    public synchronized Prioritizable poll() {
-        Prioritizable result = top >= 0 ? buckets[top].take() : null;
-
+    public synchronized E poll() {
+        E result = top >= 0 ? buckets[top].take() : null;
+        count--;
         while (top >= 0 && buckets[top].size == 0) {
             top--;
         }
@@ -107,28 +110,37 @@ public class BucketsPriorityQueue {
      *
      * @return the top priority element or null if the queue is empty
      */
-    public synchronized Prioritizable peek() {
+    public synchronized E peek() {
         return top >= 0 ? buckets[top].peek() : null;
     }
 
     /**
-     * Updates the priority of the element.
+     * Updates the priority of the element that is found first in the queue.
+     * If more equal elements exist only the first one will be updated.
+     *
+     * <p>This algorithm performs a sequential search in the list of elements with the same priority so this is
+     * done in O(n) where n is the number of elements with the same priority.
+     *
+     * The update of top and the insertion is done in constant time.
      *
      * @param element the element to update
      * @param newPriority the new priority
      * @throws NoSuchElementException if the element is not found in the queue
      */
-    public synchronized void update(Prioritizable element, int newPriority) throws NoSuchElementException {
+    public synchronized void update(E element, int newPriority) throws NoSuchElementException {
         Bucket bucket = buckets[element.getPriority() - 1];
         boolean removed = false;
         for(int i = 0; i < bucket.size; i++) {
             if(bucket.elements[i].equals(element)) {
+                //delete the element
                 for(int j = i; j < bucket.size - 1; j++) {
                     bucket.elements[j] = bucket.elements[j + 1];
                 }
                 bucket.elements[--bucket.size] = null;
                 removed = true;
+                count--;
 
+                //update top if necessary
                 if(element.getPriority() - 1 == top && bucket.size == 0) {
                     while (top >= 0 && buckets[top].size == 0) {
                         top--;
@@ -143,6 +155,50 @@ public class BucketsPriorityQueue {
             add(element);
         } else {
             throw new NoSuchElementException();
+        }
+    }
+
+
+    /**
+     * Returns an iterator over the elements in this queue. The
+     * iterator returns the elements in order of their priority.
+     *
+     * <p>The returned iterator is a "weakly consistent" iterator that
+     * will never throw {@link java.util.ConcurrentModificationException
+     * ConcurrentModificationException}, and guarantees to traverse
+     * elements as they existed upon construction of the iterator.
+     *
+     * <p>The iterator uses a copy of the current queue and this is constructed in O(n)
+     * @return an iterator over the elements in this queue
+     */
+    public synchronized Itr iterator() {
+        int c = 0;
+        E[] items = (E[]) new Prioritizable[count];
+
+        for(int i = top; i >= 0; i--) {
+            for(int j = 0; j < buckets[i].size; j++) {
+                items[c++] = buckets[i].elements[j];
+            }
+        }
+        return new Itr(items);
+    }
+
+    private class Itr implements Iterator<E> {
+        private E[] items;
+        private int cursor;
+
+        Itr(E[] items) {
+           this.items = items;
+        }
+
+        public boolean hasNext() {
+            return cursor < items.length;
+        }
+
+        public E next() {
+            if (cursor >= items.length)
+                throw new NoSuchElementException();
+            return items[cursor++];
         }
     }
 }
